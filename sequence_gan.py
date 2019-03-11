@@ -1,7 +1,6 @@
-import numpy as np
 import tensorflow as tf
 import random
-from dataloader import Gen_Data_loader, Dis_dataloader
+from dataloader import *
 from generator import Generator
 from discriminator import Discriminator
 from rollout import ROLLOUT
@@ -13,7 +12,7 @@ import cPickle
 ######################################################################################
 EMB_DIM = 32 # embedding dimension
 HIDDEN_DIM = 32 # hidden state dimension of lstm cell
-SEQ_LENGTH = 20 # sequence length
+SEQ_LENGTH = 3 # sequence length
 START_TOKEN = 0
 PRE_EPOCH_NUM = 120 # supervise (maximum likelihood estimation) epochs
 SEED = 88
@@ -23,8 +22,10 @@ BATCH_SIZE = 64
 #  Discriminator  Hyper-parameters
 #########################################################################################
 dis_embedding_dim = 64
-dis_filter_sizes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
-dis_num_filters = [100, 200, 200, 200, 200, 100, 100, 100, 100, 100, 160, 160]
+#dis_filter_sizes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
+#dis_num_filters = [100, 200, 200, 200, 200, 100, 100, 100, 100, 100, 160, 160]
+dis_filter_sizes = [1, 2, 3]
+dis_num_filters = [100, 200, 200]
 dis_dropout_keep_prob = 0.75
 dis_l2_reg_lambda = 0.2
 dis_batch_size = 64
@@ -33,7 +34,7 @@ dis_batch_size = 64
 #  Basic Training Parameters
 #########################################################################################
 TOTAL_BATCH = 200
-positive_file = 'save/real_data.txt'
+positive_file = 'save/real_data2.txt'
 negative_file = 'save/generator_sample.txt'
 eval_file = 'save/eval_file.txt'
 generated_num = 10000
@@ -82,7 +83,7 @@ def main():
     random.seed(SEED)
     np.random.seed(SEED)
     assert START_TOKEN == 0
-
+    #pre_process()
     gen_data_loader = Gen_Data_loader(BATCH_SIZE)
     likelihood_data_loader = Gen_Data_loader(BATCH_SIZE) # For testing
     vocab_size = 5000
@@ -92,7 +93,7 @@ def main():
     target_params = cPickle.load(open('save/target_params.pkl'))
     target_lstm = TARGET_LSTM(vocab_size, BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH, START_TOKEN, target_params) # The oracle model
 
-    discriminator = Discriminator(sequence_length=20, num_classes=2, vocab_size=vocab_size, embedding_size=dis_embedding_dim, 
+    discriminator = Discriminator(sequence_length=3, num_classes=2, vocab_size=vocab_size, embedding_size=dis_embedding_dim,
                                 filter_sizes=dis_filter_sizes, num_filters=dis_num_filters, l2_reg_lambda=dis_l2_reg_lambda)
 
     config = tf.ConfigProto()
@@ -101,7 +102,7 @@ def main():
     sess.run(tf.global_variables_initializer())
 
     # First, use the oracle model to provide the positive examples, which are sampled from the oracle data distribution
-    generate_samples(sess, target_lstm, BATCH_SIZE, generated_num, positive_file)
+    #generate_samples(sess, target_lstm, BATCH_SIZE, generated_num, positive_file)
     gen_data_loader.create_batches(positive_file)
 
     log = open('save/experiment-log.txt', 'w')

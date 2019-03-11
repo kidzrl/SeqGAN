@@ -1,5 +1,33 @@
 import numpy as np
 
+def pre_process():
+    max_l = []
+    min_l = []
+    f = open('save/real_data.txt','r')
+    fw = open('save/real_data2.txt', 'w')
+    for line in f:
+        line = line.strip()
+        line = line.split()
+        max_l.append(max(line))
+        min_l.append(min(line))
+    max_value = max(max_l)
+    min_value = min(min_l)
+    div = (float(max_value) - float(min_value)) / 5000
+    f.close()
+    f = open('save/real_data.txt', 'r')
+    for line in f:
+        num_l = []
+        line = line.strip()
+        line = line.split()
+        line = map(float, line)
+        for i in line:
+            num = i
+            num = int(round(num/div) + 2500)
+            num_l.append(str(num))
+        s = ' '.join(num_l)
+        fw.write(s+'\n')
+
+    print ('Pre-process OK!')
 
 class Gen_Data_loader():
     def __init__(self, batch_size):
@@ -13,7 +41,7 @@ class Gen_Data_loader():
                 line = line.strip()
                 line = line.split()
                 parse_line = [int(x) for x in line]
-                if len(parse_line) == 20:
+                if len(parse_line) == 3:
                     self.token_stream.append(parse_line)
 
         self.num_batch = int(len(self.token_stream) / self.batch_size)
@@ -51,7 +79,7 @@ class Dis_dataloader():
                 line = line.strip()
                 line = line.split()
                 parse_line = [int(x) for x in line]
-                if len(parse_line) == 20:
+                if len(parse_line) == 3:
                     negative_examples.append(parse_line)
         self.sentences = np.array(positive_examples + negative_examples)
 
