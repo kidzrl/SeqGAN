@@ -8,11 +8,12 @@ def pre_process():
     for line in f:
         line = line.strip()
         line = line.split()
+        line = map(float, line)
         max_l.append(max(line))
         min_l.append(min(line))
     max_value = max(max_l)
     min_value = min(min_l)
-    div = (float(max_value) - float(min_value)) / 5000
+    div = (float(max_value) - float(min_value)) / 10000
     f.close()
     f = open('save/real_data.txt', 'r')
     for line in f:
@@ -22,7 +23,7 @@ def pre_process():
         line = map(float, line)
         for i in line:
             num = i
-            num = int(round(num/div) + 2500)
+            num = int(round(num/div) + 4985)
             num_l.append(str(num))
         s = ' '.join(num_l)
         fw.write(s+'\n')
