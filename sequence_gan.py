@@ -111,13 +111,15 @@ def main():
     log.write('pre-training...\n')
     for epoch in xrange(PRE_EPOCH_NUM):
         loss = pre_train_epoch(sess, generator, gen_data_loader)
-        if epoch % 5 == 0:
-            generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-            likelihood_data_loader.create_batches(eval_file)
-            test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-            print 'pre-train epoch ', epoch, 'test_loss ', test_loss
-            buffer = 'epoch:\t'+ str(epoch) + '\tnll:\t' + str(test_loss) + '\n'
-            log.write(buffer)
+        print("Epoch",epoch,"loss:",loss)
+        #if epoch % 5 == 0:
+            # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+            # likelihood_data_loader.create_batches(eval_file)
+            # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
+            # print 'pre-train epoch ', epoch, 'test_loss ', test_loss
+            # buffer = 'epoch:\t'+ str(epoch) + '\tnll:\t' + str(test_loss) + '\n'
+            # log.write(buffer)
+         #   print('5 epochs')
 
     print 'Start pre-training discriminator...'
     # Train 3 epoch on the generated data and do this for 50 times
@@ -150,11 +152,11 @@ def main():
 
         # Test
         if total_batch % 5 == 0 or total_batch == TOTAL_BATCH - 1:
-            generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-            likelihood_data_loader.create_batches(eval_file)
-            test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-            buffer = 'epoch:\t' + str(total_batch) + '\tnll:\t' + str(test_loss) + '\n'
-            print 'total_batch: ', total_batch, 'test_loss: ', test_loss
+            #generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+            #likelihood_data_loader.create_batches(eval_file)
+            # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
+            buffer = 'epoch:\t' + str(total_batch) + '\treward:\t' + str(rewards) + '\n'
+            print 'total_batch: ', total_batch, 'reward: ', rewards
             log.write(buffer)
 
         # Update roll-out parameters
@@ -175,6 +177,10 @@ def main():
                         discriminator.dropout_keep_prob: dis_dropout_keep_prob
                     }
                     _ = sess.run(discriminator.train_op, feed)
+    print("Wrting final results to test file")
+    test_file = "save/final2.txt"
+    generate_samples(sess, generator, BATCH_SIZE, generated_num, test_file)
+    print("Finished")
 
     log.close()
 
